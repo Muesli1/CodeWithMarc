@@ -1,0 +1,30 @@
+<idea-plugin>
+    <id>muesli1.code_with_marc_plugin</id>
+    <name>Code with Marc</name>
+    <!-- <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor> -->
+
+    <description><![CDATA[
+    Code with Marc.<br>
+    If you want to
+    ]]></description>
+
+    <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="muesli1.AppSettingsState"/>
+
+        <applicationConfigurable parentId="tools" instance="muesli1.AppSettingsConfigurable"
+                                 id="muesli1.AppSettingsConfigurable"
+                                 displayName="Code with Marc: Settings"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="muesli1.PopupDialogAction" class="muesli1.PopupDialogAction" text="Start coding with Marc"
+                description="Connects to server and synchronizes project">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
+</idea-plugin>

@@ -1,0 +1,61 @@
+plugins {
+    id 'jar-conventions'
+}
+
+plugins {
+    id 'org.hidetake.ssh' version '2.10.1'
+}
+
+dependencies {
+    implementation project(':common')
+    implementation(libs.json.smart)
+}
+
+
+
+def Properties properties = new Properties()
+properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+task createProperties {
+    doLast {
+
+        def global = new File(properties.getProperty("developer_key_file"))
+        def file = new File("$buildDir/resources/main/developer_key.properties")
+        file.write("developer_key=" + global.readLines().get(0))
+    }
+}
+processResources {
+    finalizedBy createProperties
+}
+
+
+
+jar {
+    manifest {
+        attributes 'Class-Path': configurations.runtimeClasspath.files.collect { "lib/$it.name"  }.join(' ')
+        attributes 'Main-Class': 'cfm.Server'
+    }
+}
+
+
+remotes {
+    webServer {
+        host = properties.getProperty("host")
+        user = properties.getProperty("user")
+        identity = file(properties.getProperty("rsa_key_path"))
+    }
+}
+
+task deploy {
+    dependsOn installDist
+    doLast {
+        ssh.run {
+            session(remotes.webServer) {
+                execute "mkdir " + properties.getProperty("server_path") + "/${version} -p"
+                put from: "$buildDir/install/server/server-${version}.jar", into: properties.getProperty("server_path") + "/${version}/"
+                put from: "$buildDir/install/server/lib", into: properties.getProperty("server_path") + "/${version}/"
+                //execute 'rbbtop'
+            }
+        }
+    }
+}

@@ -1,0 +1,15 @@
+plugins {
+    id 'jar-conventions'
+}
+
+dependencies {
+    implementation project(':common')
+    implementation(libs.json.smart)
+}
+
+jar {
+    manifest {
+        attributes 'Class-Path': configurations.runtimeClasspath.files.collect { "lib/$it.name"  }.join(' ')
+        attributes 'Main-Class': 'cfm.Client'
+    }
+}

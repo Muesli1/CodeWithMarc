@@ -1,0 +1,24 @@
+rootProject.name = 'CodeWithMarc'
+include 'client'
+include 'server'
+include 'common'
+include 'plugin'
+
+
+gradle.ext.version="1.5.0"
+
+
+
+// See https://docs.gradle.org/current/userguide/platforms.html
+enableFeaturePreview('VERSION_CATALOGS')
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            alias('json-smart').to('net.minidev:json-smart:2.4.7')
+            alias('junit-api').to('org.junit.jupiter:junit-jupiter-api:5.7.0')
+            alias('junit-engine').to('org.junit.jupiter:junit-jupiter-engine:5.7.0')
+            alias('jetbrains-annotations').to('org.jetbrains:annotations:16.0.2')
+        }
+    }
+}
