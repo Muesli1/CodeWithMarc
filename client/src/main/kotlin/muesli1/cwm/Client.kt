@@ -26,8 +26,8 @@ private const val SERVER_LOCATION = "codewithmarc.tutorium.tudalgo.org"
 private const val SERVER_PORT = 80
 private const val SERVER_PATH = "/connection"
 
-/*
-private const val SERVER_LOCATION = "0.0.0.0"
+
+/*private const val SERVER_LOCATION = "0.0.0.0"
 private const val SERVER_PORT = 8080
 private const val SERVER_PATH = "/connection"*/
 
@@ -129,7 +129,7 @@ class ClientApplication {
                             try {
                                 sendSerialized(password ?: NO_PASSWORD)
                                 if (password != null) {
-                                    sendSerialized(clientReceiver.createDeveloperData())
+                                    sendSerialized<Packet>(clientReceiver.createDeveloperData())
                                 }
 
                                 clientReceiver.connectedSession()
@@ -206,8 +206,7 @@ suspend fun main() {
     println("Try send!")
     app.sendUnsafe(DeveloperUpdatePacket("WASABI/dir/file.txt", "ok"))
 
-    Thread.sleep(50000)
-    //println(app.send<Customer, Customer>("upload", Customer(5, "Uga","Buga")))
+    delay(50000)
 }
 
 

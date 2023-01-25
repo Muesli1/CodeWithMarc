@@ -87,7 +87,7 @@ class ProjectUserData extends ClientReceiver {
         final boolean developer = settingsState.developer;
         final String prefix = settingsState.prefix;
 
-        client.connect(developer? prefix : null, this);
+        this.client.connect(developer? prefix : null, this);
     }
 
 
@@ -274,6 +274,8 @@ class ProjectUserData extends ClientReceiver {
             }
             whitelistCache.put(projectPath, isInWhitelist);
         }
+
+        //System.out.println(projectPath + "->" + isInWhitelist);
         return isInWhitelist;
     }
 
@@ -388,10 +390,12 @@ class ProjectUserData extends ClientReceiver {
             final DeveloperUpdatePacket dup = (DeveloperUpdatePacket) packet;
             final Path projectPath = getProjectPath(dup.getPath());
 
+            //System.out.println("Try receive: " + projectPath);
             final Application application = ApplicationManager.getApplication();
             if(application != null) {
                 application.invokeLater(() -> {
                     updateText(projectPath, dup.getText());
+                    //System.out.println("Received: " + projectPath);
                 });
             }
             //System.out.println("DEV UPGRADE?");
@@ -400,7 +404,7 @@ class ProjectUserData extends ClientReceiver {
             synchronized(developerUserCodeMapMonitor) {
                 developerUserCodeMap.clear();
                 developerUserCodeMap.putAll(((CompleteUserCodePacket) packet).getCode());
-                System.out.println(developerUserCodeMap);
+                // System.out.println(developerUserCodeMap);
             }
         }
         else {
@@ -439,8 +443,9 @@ class ProjectUserData extends ClientReceiver {
 
         for(String s : whitelist) {
             try {
-                final Path subPath = Path.of(s);
+                final Path subPath = universalStringToPath(s);
                 final Path fullPath = basePath.resolve(subPath);
+
 
                 if(!Files.exists(fullPath) || !Files.isDirectory(fullPath)) {
                     showNotification("Non existent directory: " + s, NotificationType.ERROR);
@@ -494,14 +499,30 @@ class ProjectUserData extends ClientReceiver {
 
 
     private static String pathToUniversalString(Path relativeFile) {
-        //TODO: Change?
-        return relativeFile.toString();
+        final StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < relativeFile.getNameCount(); i++) {
+            final String part = relativeFile.getName(i).toString();
+            if(builder.length() != 0) {
+                builder.append("/");
+            }
+            builder.append(part);
+        }
+
+        return builder.toString();
     }
 
     @NotNull
     private Path universalStringToPath(@NotNull String path) {
-        //TODO: Change?
-        return Path.of(path);
+        final String[] split = path.split("/");
+        if(split.length == 0) {
+            throw new RuntimeException("Incorrect path: " + path);
+        }
+        Path p = Path.of(split[0]);
+        for(int i = 1; i < split.length; i++) {
+            p = p.resolve(split[i]);
+        }
+
+        return p;
     }
 
     @Override

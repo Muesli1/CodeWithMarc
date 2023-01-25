@@ -38,7 +38,7 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="muesli1.PopupDialogAction" class="muesli1.cwm.PopupDialogAction" text="Show User Code"
+        <action id="muesli1.PopupDialogAction" class="muesli1.cwm.PopupDialogAction" text="CWM: Show User Code"
                 description="Shows the code the users typed in">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>

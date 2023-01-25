@@ -10,11 +10,6 @@ const val MAX_USER_CODE_ENTRIES = 10
 const val NO_PASSWORD = "NO_PASSWORD"
 
 @Serializable
-data class Uga(val x: Int, val y: String) {
-
-}
-
-@Serializable
 sealed class Packet
 
 @Serializable
@@ -39,7 +34,3 @@ data class UserCodeUpdatePacket(
 data class CompleteUserCodePacket(
     val code: MutableMap<String, Map<Int, List<String>>>
 ) : Packet()
-
-fun main() {
-    println(Json.encodeToString(Uga(5, "bitteWat")))
-}

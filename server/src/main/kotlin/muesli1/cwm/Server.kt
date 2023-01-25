@@ -11,16 +11,16 @@ import io.ktor.server.websocket.*
 import io.ktor.util.reflect.*
 import io.ktor.utils.io.charsets.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.Serializable
+import kotlinx.coroutines.*
 import muesli1.cwm.plugins.*
+import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.function.Predicate
+import kotlin.coroutines.CoroutineContext
 
 val REAL_PASSWORD: String = System.getenv("DEVELOPER_PASSWORD") ?: throw RuntimeException("Missing DEVELOPER_PASSWORD!")
+
+val logger = LoggerFactory.getLogger("ktor.application");
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -41,12 +41,15 @@ class ClientConnection(
         if (receiveDeserialized == NO_PASSWORD) {
             // User!
 
+
             val copy = synchronized(developerCodeLock) {
                 developerCode.toMap()
             }
+            //println("Send ${copy.size} packets to user!")
             copy.map { DeveloperUpdatePacket(it.key, it.value) }.forEach {
                 send(it)
             }
+            //println("yay!")
 
             return true
         }
@@ -54,7 +57,11 @@ class ClientConnection(
         if (receiveDeserialized == REAL_PASSWORD) {
             // DEVELOPER!
 
-            val initPacket = session.receiveDeserialized<DeveloperInitPacket>()
+            val initPacket = session.receiveDeserialized<Packet>()
+
+            if (initPacket !is DeveloperInitPacket) {
+                return false;
+            }
             processDeveloperInit(initPacket)
             isDeveloper = true
             send(createCompleteUserCodePacket())
@@ -98,7 +105,16 @@ val nextConnectionId: AtomicInteger = AtomicInteger(0)
 
 
 fun processDeveloperInit(initPacket: DeveloperInitPacket) {
-    println("Init Server ${initPacket.projectName} ${initPacket.code}")
+    logger.info("Init Server '${initPacket.projectName}'")
+
+    runBlocking {
+        initPacket.code.forEach {
+            synchronized(developerCodeLock) {
+                developerCode[it.key] = it.value
+            }
+            sendTo({ !it.isDeveloper }, DeveloperUpdatePacket(it.key, it.value))
+        }
+    }
 }
 
 suspend fun sendTo(predicate: (ClientConnection) -> Boolean, packet: Packet) {
@@ -114,7 +130,7 @@ fun printConnectionInfo(info: String) {
     val developerCount = connections.count { it.isDeveloper }
     val userCount = connections.size - developerCount
 
-    println("$info Live connections: $userCount users and $developerCount developers")
+    logger.info("$info Live connections: $userCount users and $developerCount developers")
 }
 
 fun openedConnection(connection: ClientConnection) {
@@ -219,23 +235,28 @@ fun Application.module() {
             // send("You are connected!")
             val connection = ClientConnection(this)
             val handshake = connection.handshake()
+            val openedConnection = AtomicBoolean(false)
 
             try {
                 if (handshake) {
                     openedConnection(connection)
-                }
+                    openedConnection.set(true)
 
-                launch {
-                    for (frame in incoming) {
-                        val packet = deserialized<Packet>(frame)
 
-                        synchronized(packagesLock) {
-                            packagesToProcess.add(Pair(connection, packet))
+                    launch {
+                        for (frame in incoming) {
+                            val packet = deserialized<Packet>(frame)
+
+                            synchronized(packagesLock) {
+                                packagesToProcess.add(Pair(connection, packet))
+                            }
                         }
-                    }
-                }.join()
+                    }.join()
+                }
             } finally {
-                closedConnection(connection)
+                if (openedConnection.get()) {
+                    closedConnection(connection)
+                }
             }
         }
     }
