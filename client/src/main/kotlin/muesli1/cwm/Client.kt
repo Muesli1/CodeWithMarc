@@ -22,13 +22,14 @@ abstract class ClientReceiver {
 }
 
 //TODO: SET TO REAL SERVER
-/*private const val SERVER_LOCATION = "codewithmarc.tutorium.tudalgo.org"
+private const val SERVER_LOCATION = "codewithmarc.tutorium.tudalgo.org"
 private const val SERVER_PORT = 80
-private const val SERVER_PATH = "/connection"*/
+private const val SERVER_PATH = "/connection"
 
+/*
 private const val SERVER_LOCATION = "0.0.0.0"
 private const val SERVER_PORT = 8080
-private const val SERVER_PATH = "/connection"
+private const val SERVER_PATH = "/connection"*/
 
 class ClientApplication {
 
@@ -197,7 +198,7 @@ suspend fun main() {
         }
 
         override fun connectedSession() {
-            TODO("Not yet implemented")
+
         }
     })
 

@@ -1,5 +1,3 @@
-
-
 plugins {
     kotlin("jvm") version "1.7.0" apply false
 }
@@ -11,5 +9,5 @@ subprojects {
 
 allprojects {
     group = "muesli1"
-    version = "1.0-SNAPSHOT"
+    version = "1.0"
 }

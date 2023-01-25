@@ -20,7 +20,7 @@ import muesli1.cwm.plugins.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Predicate
 
-const val REAL_PASSWORD: String = "okok"
+val REAL_PASSWORD: String = System.getenv("DEVELOPER_PASSWORD") ?: throw RuntimeException("Missing DEVELOPER_PASSWORD!")
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
