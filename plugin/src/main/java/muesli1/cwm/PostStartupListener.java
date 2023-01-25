@@ -7,12 +7,15 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.startup.StartupActivity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PostStartupListener implements StartupActivity {
@@ -21,6 +24,11 @@ public class PostStartupListener implements StartupActivity {
 
 
     public static final Map<Project, ProjectUserData> projectMap = new HashMap<>();
+
+    @Nullable
+    public static ProjectUserData getUserData(@NotNull Project project) {
+        return projectMap.get(project);
+    }
 
     @Override
     public void runActivity(@NotNull Project project) {
@@ -48,9 +56,14 @@ public class PostStartupListener implements StartupActivity {
         }
 
         final String projectName;
+        final List<String> whitelist = new ArrayList<>();
 
         try(BufferedReader reader = Files.newBufferedReader(configFile)) {
             projectName = reader.readLine();
+            String line;
+            while((line = reader.readLine()) != null) {
+                whitelist.add(line);
+            }
         }
         catch(IOException e) {
             throw new RuntimeException(e);
@@ -68,7 +81,7 @@ public class PostStartupListener implements StartupActivity {
                                 .notify(project);
 
 
-        createClient(project, basePath, projectName);
+        createClient(project, basePath, projectName, whitelist);
 
         ProjectManager.getInstance().addProjectManagerListener(project, new ProjectManagerListener() {
             @Override
@@ -84,9 +97,9 @@ public class PostStartupListener implements StartupActivity {
         });
     }
 
-    private void createClient(@NotNull Project project, @NotNull Path basePath, @NotNull String projectName) {
+    private void createClient(@NotNull Project project, @NotNull Path basePath, @NotNull String projectName, @NotNull List<String> whitelist) {
 
-        projectMap.put(project,new ProjectUserData(project, basePath, projectName));
+        projectMap.put(project, new ProjectUserData(project, basePath, projectName, whitelist));
 
     }
 }

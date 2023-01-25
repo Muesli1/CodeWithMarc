@@ -1,9 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.10.1"
+    id("org.jetbrains.intellij") version "1.12.0"
 }
-
-
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
@@ -11,6 +9,14 @@ intellij {
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf(/* Plugin Dependencies */))
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
 }
 
 tasks {
@@ -37,9 +43,28 @@ tasks {
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
     }
+
+
+    buildSearchableOptions {
+        enabled = false
+    }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "11"
+    }
+
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "11"
+    }
 }
 
 dependencies {
-    implementation(project(":common"))
-    implementation(project(":client"))
+    implementation(project(":common")) {
+        exclude("org.slf4j")
+    }
+    implementation(project(":client")) {
+        exclude("org.slf4j")
+    }
+
+    // implementation(kotlin("stdlib"))
 }

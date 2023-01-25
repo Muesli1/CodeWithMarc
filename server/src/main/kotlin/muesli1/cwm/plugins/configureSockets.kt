@@ -15,6 +15,8 @@ fun Application.configureSockets() {
         maxFrameSize = Long.MAX_VALUE
         masking = false
 
-        contentConverter = KotlinxWebsocketSerializationConverter(Json)
+        contentConverter = KotlinxWebsocketSerializationConverter(Json {
+            allowStructuredMapKeys=true
+        })
     }
 }
