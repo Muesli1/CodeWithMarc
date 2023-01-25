@@ -1,28 +1,44 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>muesli1.code_with_marc_plugin</id>
-    <name>Code with Marc</name>
-    <!-- <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor> -->
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>muesli1.CodeWithMarc</id>
 
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Code With Marc</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor>Marc</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    Code with Marc.<br>
-    If you want to
+        Code with Marc. Activate on your own risk!
     ]]></description>
 
-    <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
-         on how to target different products -->
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="muesli1.AppSettingsState"/>
+        <notificationGroup id="Code With Marc Notifications"
+                           displayType="BALLOON"/>
+    </extensions>
 
-        <applicationConfigurable parentId="tools" instance="muesli1.AppSettingsConfigurable"
-                                 id="muesli1.AppSettingsConfigurable"
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="muesli1.cwm.PostStartupListener"/>
+
+        <applicationService serviceImplementation="muesli1.cwm.AppSettingsState"/>
+
+        <applicationConfigurable parentId="tools" instance="muesli1.cwm.AppSettingsConfigurable"
+                                 id="muesli1.cwm.AppSettingsConfigurable"
                                  displayName="Code with Marc: Settings"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="muesli1.PopupDialogAction" class="muesli1.PopupDialogAction" text="Start coding with Marc"
+        <action id="muesli1.PopupDialogAction" class="muesli1.cwm.PopupDialogAction" text="Start Coding With Marc"
                 description="Connects to server and synchronizes project">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>
