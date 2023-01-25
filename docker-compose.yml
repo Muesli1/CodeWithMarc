@@ -1,8 +1,8 @@
 services:
   web:
     build: .
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
     image: code-with-marc:latest
     container_name: CWM-Server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
